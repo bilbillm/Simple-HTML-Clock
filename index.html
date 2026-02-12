@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Clock</title>
+    <style>
+        /* ========================================
+           CSS Variables - Theme Colors
+           ======================================== */
+        :root {
+            --bg-color: #F5F5F7;
+            --text-color: #1D1D1F;
+            --text-secondary: rgba(29, 29, 31, 0.5);
+            --text-muted: rgba(29, 29, 31, 0.3);
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.5);
+            --slider-track: rgba(120, 120, 130, 0.2);
+            --slider-thumb: #007AFF;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1D1D1F;
+            --text-color: #F5F5F7;
+            --text-secondary: rgba(245, 245, 247, 0.5);
+            --text-muted: rgba(245, 245, 247, 0.25);
+            --panel-bg: rgba(30, 30, 30, 0.85);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --slider-track: rgba(120, 120, 130, 0.3);
+            --slider-thumb: #5856D6;
+        }
+
+        /* ========================================
+           Global Reset & Base Styles
+           ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+                         "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 25vh;
+            opacity: 0;
+            animation: fadeInPage 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ========================================
+           Time Display (On Background)
+           ======================================== */
+        .time {
+            font-size: 160px;
+            font-weight: 700;
+            letter-spacing: -6px;
+            line-height: 1;
+            font-feature-settings: "tnum" on, "zero" on;
+            color: var(--text-color);
+            transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            animation: fadeInTime 1s 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInTime {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        /* Parallax wrapper for 2.5D effect */
+        .parallax-wrapper {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ========================================
+           Quote Section (On Background)
+           ======================================== */
+        .quote {
+            margin-top: 40px;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.7;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quote.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .quote-author {
+            margin-top: 12px;
+            font-size: 18px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ========================================
+           Theme Toggle Button
+           ======================================== */
+        .theme-toggle {
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            width: 52px;
+            height: 28px;
+            border-radius: 14px;
+            background: rgba(120, 120, 130, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 3px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(120, 120, 130, 0.2);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .toggle-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.25);
+        }
+
+        .toggle-icon {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+
+        [data-theme="dark"] .toggle-thumb {
+            transform: translateX(24px);
+        }
+
+        /* ========================================
+           Settings Gear Button
+           ======================================== */
+        .settings-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(90deg) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .settings-btn:active {
+            transform: rotate(90deg) scale(0.95);
+        }
+
+        .gear-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-color);
+            transition: fill 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ========================================
+           Settings Panel
+           ======================================== */
+        .settings-panel {
+            position: fixed;
+            bottom: 90px;
+            right: 32px;
+            width: 280px;
+            padding: 24px;
+            border-radius: 20px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .settings-panel.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .setting-value {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Range Slider */
+        .range-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--slider-track);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Parallax Intensity Selector */
+        .intensity-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .intensity-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intensity-btn:hover {
+            background: rgba(120, 120, 130, 0.1);
+        }
+
+        .intensity-btn.active {
+            background: var(--slider-thumb);
+            color: white;
+            border-color: var(--slider-thumb);
+        }
+
+        /* ========================================
+           Responsive Design
+           ======================================== */
+        @media (max-width: 768px) {
+            .time {
+                font-size: 88px;
+                letter-spacing: -3px;
+            }
+
+            .quote {
+                font-size: 15px;
+                padding: 0 32px;
+                margin-top: 28px;
+            }
+
+            .theme-toggle {
+                top: 24px;
+                right: 24px;
+            }
+
+            .settings-btn {
+                bottom: 24px;
+                right: 24px;
+            }
+
+            .settings-panel {
+                bottom: 82px;
+                right: 24px;
+                width: 260px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time {
+                font-size: 64px;
+                letter-spacing: -2px;
+            }
+
+            .quote {
+                font-size: 14px;
+                margin-top: 24px;
+            }
+
+            .settings-panel {
+                width: calc(100% - 48px);
+                left: 24px;
+                right: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="切换深色模式">
+        <div class="toggle-thumb">
+            <svg class="toggle-icon" viewBox="0 0 24 24">
+                <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+            </svg>
+        </div>
+    </button>
+
+    <!-- Settings Gear Button -->
+    <button class="settings-btn" id="settingsBtn" aria-label="设置">
+        <svg class="gear-icon" viewBox="0 0 24 24">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+    </button>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-title">设置</div>
+
+        <!-- Clock Font Size -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <span>时钟字体大小</span>
+                <span class="setting-value" id="clockSizeValue">160px</span>
+            </div>
+            <input type="range" class="range-slider" id="clockSizeSlider"
+                   min="80" max="200" value="160">
+        </div>
+
+        <!-- Quote Font Size -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <span>名言字体大小</span>
+                <span class="setting-value" id="quoteSizeValue">22px</span>
+            </div>
+            <input type="range" class="range-slider" id="quoteSizeSlider"
+                   min="14" max="28" value="22">
+        </div>
+
+        <!-- Author Font Size -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <span>作者字体大小</span>
+                <span class="setting-value" id="authorSizeValue">18px</span>
+            </div>
+            <input type="range" class="range-slider" id="authorSizeSlider"
+                   min="12" max="22" value="18">
+        </div>
+
+        <!-- Vertical Position -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <span>垂直位置</span>
+                <span class="setting-value" id="positionValue">25vh</span>
+            </div>
+            <input type="range" class="range-slider" id="positionSlider"
+                   min="10" max="40" value="25">
+        </div>
+
+        <!-- Parallax Intensity -->
+        <div class="setting-item">
+            <div class="setting-label">
+                <span>视差强度</span>
+            </div>
+            <div class="intensity-selector">
+                <button class="intensity-btn" data-value="0">关闭</button>
+                <button class="intensity-btn" data-value="3">弱</button>
+                <button class="intensity-btn active" data-value="6">中</button>
+                <button class="intensity-btn" data-value="10">强</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parallax Wrapper -->
+    <div class="parallax-wrapper">
+        <!-- Time Display -->
+        <div class="time" id="timeDisplay">00:00:00</div>
+
+        <!-- Quote Display -->
+        <div class="quote" id="quoteDisplay">
+            <div class="quote-text"></div>
+            <div class="quote-author"></div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Apple Clock - Main Script
+         */
+
+        const quotes = [
+            { text: "Stay hungry, stay foolish.", author: "Steve Jobs" },
+            { text: "简约是复杂的最终形式。", author: "Leonardo da Vinci" },
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "活着就是为了改变世界。", author: "Steve Jobs" },
+            { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+            { text: "Think different.", author: "Apple Inc." },
+            { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+            { text: "成功不是终点，勇气才是终点。", author: "Ralph Waldo Emerson" },
+            { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+            { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+            { text: "人生短暂，及时行乐。", author: "Epicurus" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" }
+        ];
+
+        const timeDisplay = document.getElementById('timeDisplay');
+        const quoteText = document.querySelector('.quote-text');
+        const quoteAuthor = document.querySelector('.quote-author');
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const themeToggle = document.getElementById('themeToggle');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+
+        let lastMinute = -1;
+        let currentQuoteIndex = -1;
+        let parallaxIntensity = 6;
+
+        // Default settings
+        const defaultSettings = {
+            clockSize: 160,
+            quoteSize: 22,
+            authorSize: 18,
+            position: 25,
+            parallaxIntensity: 6
+        };
+
+        // Load settings from localStorage or use defaults
+        function loadSettings() {
+            const saved = localStorage.getItem('clockSettings');
+            if (saved) {
+                return { ...defaultSettings, ...JSON.parse(saved) };
+            }
+            return { ...defaultSettings };
+        }
+
+        // Save settings to localStorage
+        function saveSettings(settings) {
+            localStorage.setItem('clockSettings', JSON.stringify(settings));
+        }
+
+        // Apply settings
+        function applySettings(settings) {
+            // Apply font sizes
+            timeDisplay.style.fontSize = settings.clockSize + 'px';
+            document.getElementById('clockSizeValue').textContent = settings.clockSize + 'px';
+            document.getElementById('clockSizeSlider').value = settings.clockSize;
+
+            document.querySelector('.quote').style.fontSize = settings.quoteSize + 'px';
+            document.getElementById('quoteSizeValue').textContent = settings.quoteSize + 'px';
+            document.getElementById('quoteSizeSlider').value = settings.quoteSize;
+
+            document.querySelector('.quote-author').style.fontSize = settings.authorSize + 'px';
+            document.getElementById('authorSizeValue').textContent = settings.authorSize + 'px';
+            document.getElementById('authorSizeSlider').value = settings.authorSize;
+
+            // Apply position
+            document.body.style.paddingTop = settings.position + 'vh';
+            document.getElementById('positionValue').textContent = settings.position + 'vh';
+            document.getElementById('positionSlider').value = settings.position;
+
+            // Apply parallax intensity
+            parallaxIntensity = settings.parallaxIntensity;
+            updateParallaxButtons(settings.parallaxIntensity);
+        }
+
+        // Update parallax intensity buttons
+        function updateParallaxButtons(value) {
+            document.querySelectorAll('.intensity-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.value) === value);
+            });
+        }
+
+        function formatTime(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            timeDisplay.textContent = formatTime(now);
+
+            const currentMinute = now.getMinutes();
+            if (currentMinute !== lastMinute) {
+                lastMinute = currentMinute;
+                updateQuote();
+            }
+        }
+
+        function getRandomQuote() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * quotes.length);
+            } while (newIndex === currentQuoteIndex && quotes.length > 1);
+
+            currentQuoteIndex = newIndex;
+            return quotes[newIndex];
+        }
+
+        function updateQuote() {
+            quoteDisplay.classList.remove('visible');
+
+            setTimeout(() => {
+                const quote = getRandomQuote();
+                quoteText.textContent = `"${quote.text}"`;
+                quoteAuthor.textContent = `— ${quote.author}`;
+                quoteDisplay.classList.add('visible');
+            }, 600);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Toggle settings panel
+        function toggleSettings() {
+            settingsPanel.classList.toggle('active');
+        }
+
+        // Close settings panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+                settingsPanel.classList.remove('active');
+            }
+        });
+
+        themeToggle.addEventListener('click', toggleTheme);
+        settingsBtn.addEventListener('click', toggleSettings);
+
+        // Settings sliders
+        document.getElementById('clockSizeSlider').addEventListener('input', (e) => {
+            const settings = loadSettings();
+            settings.clockSize = parseInt(e.target.value);
+            saveSettings(settings);
+            applySettings(settings);
+        });
+
+        document.getElementById('quoteSizeSlider').addEventListener('input', (e) => {
+            const settings = loadSettings();
+            settings.quoteSize = parseInt(e.target.value);
+            saveSettings(settings);
+            applySettings(settings);
+        });
+
+        document.getElementById('authorSizeSlider').addEventListener('input', (e) => {
+            const settings = loadSettings();
+            settings.authorSize = parseInt(e.target.value);
+            saveSettings(settings);
+            applySettings(settings);
+        });
+
+        document.getElementById('positionSlider').addEventListener('input', (e) => {
+            const settings = loadSettings();
+            settings.position = parseInt(e.target.value);
+            saveSettings(settings);
+            applySettings(settings);
+        });
+
+        // Parallax intensity buttons
+        document.querySelectorAll('.intensity-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const settings = loadSettings();
+                settings.parallaxIntensity = parseInt(btn.dataset.value);
+                saveSettings(settings);
+                applySettings(settings);
+            });
+        });
+
+        // ========================================
+        // Parallax 2.5D Effect
+        // ========================================
+        const parallaxWrapper = document.querySelector('.parallax-wrapper');
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateParallax() {
+            currentX += (mouseX - currentX) * 0.08;
+            currentY += (mouseY - currentY) * 0.08;
+
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const offsetX = (currentX - centerX) / centerX;
+            const offsetY = (currentY - centerY) / centerY;
+
+            if (parallaxWrapper) {
+                parallaxWrapper.style.transform = `perspective(1000px) rotateY(${offsetX * parallaxIntensity}deg) rotateX(${-offsetY * parallaxIntensity}deg)`;
+            }
+
+            requestAnimationFrame(animateParallax);
+        }
+
+        animateParallax();
+
+        // Initialize
+        initTheme();
+        const settings = loadSettings();
+        applySettings(settings);
+        updateQuote();
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
