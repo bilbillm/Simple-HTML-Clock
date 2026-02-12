@@ -9,7 +9,6 @@
            CSS Variables - Theme Colors
            ======================================== */
         :root {
-            --bg-color: #F5F5F7;
             --text-color: #1D1D1F;
             --text-secondary: rgba(29, 29, 31, 0.5);
             --text-muted: rgba(29, 29, 31, 0.3);
@@ -17,10 +16,11 @@
             --panel-border: rgba(255, 255, 255, 0.5);
             --slider-track: rgba(120, 120, 130, 0.2);
             --slider-thumb: #007AFF;
+            --bg-top: #F5F5F7;
+            --bg-bottom: #D8D8DE;
         }
 
         [data-theme="dark"] {
-            --bg-color: #1D1D1F;
             --text-color: #F5F5F7;
             --text-secondary: rgba(245, 245, 247, 0.5);
             --text-muted: rgba(245, 245, 247, 0.25);
@@ -28,6 +28,8 @@
             --panel-border: rgba(255, 255, 255, 0.1);
             --slider-track: rgba(120, 120, 130, 0.3);
             --slider-thumb: #5856D6;
+            --bg-top: #1C1C1E;
+            --bg-bottom: #000000;
         }
 
         /* ========================================
@@ -42,7 +44,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
                          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
+            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
@@ -52,7 +54,7 @@
             padding-top: 25vh;
             opacity: 0;
             animation: fadeInPage 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                         color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
