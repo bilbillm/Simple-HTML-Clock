@@ -353,6 +353,10 @@
            Responsive Design
            ======================================== */
         @media (max-width: 768px) {
+            body {
+                padding-top: 20vh;
+            }
+
             .time {
                 font-size: 88px;
                 letter-spacing: -3px;
@@ -364,24 +368,45 @@
                 margin-top: 28px;
             }
 
+            .quote-author {
+                font-size: 14px;
+            }
+
             .theme-toggle {
-                top: 24px;
-                right: 24px;
+                top: 20px;
+                right: 20px;
+                width: 48px;
+                height: 26px;
+            }
+
+            .toggle-thumb {
+                width: 20px;
+                height: 20px;
             }
 
             .settings-btn {
-                bottom: 24px;
-                right: 24px;
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
             }
 
             .settings-panel {
-                bottom: 82px;
-                right: 24px;
-                width: 260px;
+                bottom: 74px;
+                right: 20px;
+                width: calc(100% - 40px);
+                max-width: 320px;
+                padding: 12px;
             }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding-top: 18vh;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
             .time {
                 font-size: 64px;
                 letter-spacing: -2px;
@@ -390,12 +415,183 @@
             .quote {
                 font-size: 14px;
                 margin-top: 24px;
+                padding: 0 8px;
+                line-height: 1.6;
+            }
+
+            .quote-author {
+                font-size: 13px;
+                margin-top: 10px;
+            }
+
+            .theme-toggle {
+                top: 16px;
+                right: 16px;
+                width: 44px;
+                height: 24px;
+                border-radius: 12px;
+            }
+
+            .theme-toggle .toggle-thumb {
+                width: 18px;
+                height: 18px;
+            }
+
+            [data-theme="dark"] .toggle-thumb {
+                transform: translateX(20px);
+            }
+
+            .settings-btn {
+                bottom: 16px;
+                right: 16px;
+                width: 36px;
+                height: 36px;
+            }
+
+            .gear-icon {
+                width: 18px;
+                height: 18px;
             }
 
             .settings-panel {
-                width: calc(100% - 48px);
-                left: 24px;
-                right: 24px;
+                bottom: 66px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: none;
+                padding: 12px;
+                border-radius: 14px;
+            }
+
+            .settings-title {
+                font-size: 15px;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }
+
+            .setting-item {
+                margin-bottom: 12px;
+            }
+
+            .setting-label {
+                font-size: 12px;
+            }
+
+            .intensity-btn {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+
+            .toggle-switch {
+                width: 32px;
+                height: 18px;
+            }
+
+            .toggle-slider {
+                border-radius: 9px;
+            }
+
+            .toggle-slider:before {
+                height: 14px;
+                width: 14px;
+            }
+
+            input:checked + .toggle-slider:before {
+                transform: translateX(14px);
+            }
+        }
+
+        /* ========================================
+           Small Height Screens (Landscape Mobile)
+           ======================================== */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding-top: 10vh;
+            }
+
+            .time {
+                font-size: 48px;
+                letter-spacing: -1px;
+            }
+
+            .quote {
+                font-size: 12px;
+                margin-top: 16px;
+            }
+
+            .quote-author {
+                font-size: 11px;
+                margin-top: 6px;
+            }
+
+            .settings-panel {
+                bottom: 60px;
+            }
+
+            #waveformCanvas {
+                max-height: 80px;
+            }
+        }
+
+        /* ========================================
+           Very Small Screens (iPhone SE / Small Android)
+           ======================================== */
+        @media (max-width: 360px) {
+            .time {
+                font-size: 52px;
+            }
+
+            .quote {
+                font-size: 13px;
+            }
+        }
+
+        /* ========================================
+           Touch Device Optimizations
+           ======================================== */
+        @media (hover: none) and (pointer: coarse) {
+            /* Disable parallax on touch devices */
+            .parallax-wrapper {
+                transform: none !important;
+                perspective: none !important;
+                animation: none !important;
+            }
+
+            /* Improve touch targets */
+            .theme-toggle,
+            .settings-btn,
+            .intensity-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .theme-toggle {
+                padding: 4px;
+            }
+
+            /* Disable hover effects that cause issues on touch */
+            .theme-toggle:hover,
+            .settings-btn:hover,
+            .intensity-btn:hover {
+                transform: none;
+                background: inherit;
+            }
+
+            /* Active state feedback for touch */
+            .theme-toggle:active,
+            .settings-btn:active,
+            .intensity-btn:active {
+                transform: scale(0.95);
+            }
+
+            .range-slider::-webkit-slider-thumb {
+                width: 20px;
+                height: 20px;
+            }
+
+            .range-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -643,8 +839,27 @@
             localStorage.setItem('clockSettings', JSON.stringify(settings));
         }
 
+        // Adjust slider ranges for mobile
+        function adjustSliderRanges() {
+            const clockSlider = document.getElementById('clockSizeSlider');
+            const isMobile = window.innerWidth < 480;
+
+            if (isMobile) {
+                // Reduce max clock size on mobile
+                if (parseInt(clockSlider.value) > 120) {
+                    clockSlider.value = 120;
+                }
+                clockSlider.max = 120;
+            } else {
+                clockSlider.max = 200;
+            }
+        }
+
         // Apply settings
         function applySettings(settings) {
+            // Adjust slider ranges for mobile first
+            adjustSliderRanges();
+
             // Apply font sizes
             timeDisplay.style.fontSize = settings.clockSize + 'px';
             document.getElementById('clockSizeValue').textContent = settings.clockSize + 'px';
@@ -806,13 +1021,26 @@
         const parallaxWrapper = document.querySelector('.parallax-wrapper');
         let mouseX = 0, mouseY = 0;
         let currentX = 0, currentY = 0;
+        let parallaxEnabled = true;
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
+        // Check if device supports hover (non-touch devices)
+        const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+        if (isTouchDevice) {
+            parallaxEnabled = false;
+            if (parallaxWrapper) {
+                parallaxWrapper.style.transform = 'none';
+            }
+        } else {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+        }
 
         function animateParallax() {
+            if (!parallaxEnabled) return;
+
             currentX += (mouseX - currentX) * 0.08;
             currentY += (mouseY - currentY) * 0.08;
 
