@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Clock</title>
+    <title>Lacanian Clock</title>
     <style>
         /* ========================================
            CSS Variables - Theme Colors
            ======================================== */
         :root {
-            --text-color: #1D1D1F;
-            --text-secondary: rgba(29, 29, 31, 0.5);
-            --text-muted: rgba(29, 29, 31, 0.3);
-            --panel-bg: rgba(255, 255, 255, 0.85);
-            --panel-border: rgba(255, 255, 255, 0.5);
-            --slider-track: rgba(120, 120, 130, 0.2);
-            --slider-thumb: #007AFF;
-            --bg-top: #F5F5F7;
-            --bg-bottom: #D8D8DE;
+            --text-color: #1B1713;
+            --text-secondary: rgba(27, 23, 19, 0.64);
+            --text-muted: rgba(27, 23, 19, 0.38);
+            --panel-bg: rgba(250, 246, 236, 0.88);
+            --panel-border: rgba(92, 77, 55, 0.22);
+            --slider-track: rgba(92, 77, 55, 0.18);
+            --slider-thumb: #9E3F31;
+            --bg-top: #F7F1E6;
+            --bg-bottom: #D6CBB7;
+            --accent: #9E3F31;
+            --field-line: rgba(74, 86, 67, 0.18);
+            --shadow-color: rgba(55, 37, 20, 0.14);
         }
 
         [data-theme="dark"] {
-            --text-color: #F5F5F7;
-            --text-secondary: rgba(245, 245, 247, 0.5);
-            --text-muted: rgba(245, 245, 247, 0.25);
-            --panel-bg: rgba(30, 30, 30, 0.85);
-            --panel-border: rgba(255, 255, 255, 0.1);
-            --slider-track: rgba(120, 120, 130, 0.3);
-            --slider-thumb: #5856D6;
-            --bg-top: #1C1C1E;
-            --bg-bottom: #000000;
+            --text-color: #F3E8D0;
+            --text-secondary: rgba(243, 232, 208, 0.62);
+            --text-muted: rgba(243, 232, 208, 0.34);
+            --panel-bg: rgba(15, 29, 25, 0.82);
+            --panel-border: rgba(243, 232, 208, 0.16);
+            --slider-track: rgba(243, 232, 208, 0.16);
+            --slider-thumb: #C1644F;
+            --bg-top: #182721;
+            --bg-bottom: #070A09;
+            --accent: #C1644F;
+            --field-line: rgba(232, 216, 176, 0.11);
+            --shadow-color: rgba(0, 0, 0, 0.32);
         }
 
         /* ========================================
@@ -42,9 +48,13 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-                         "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+                         Georgia, "Noto Serif SC", "Songti SC", serif;
+            background:
+                linear-gradient(90deg, var(--field-line) 1px, transparent 1px),
+                linear-gradient(0deg, var(--field-line) 1px, transparent 1px),
+                linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            background-size: 52px 52px, 52px 52px, 100% 100%;
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
@@ -58,6 +68,11 @@
                         color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        html {
+            overflow-x: hidden;
         }
 
         @keyframes fadeInPage {
@@ -71,13 +86,14 @@
         .time {
             font-size: 160px;
             font-weight: 700;
-            letter-spacing: -6px;
+            letter-spacing: 0;
             line-height: 1;
             font-feature-settings: "tnum" on, "zero" on;
             color: var(--text-color);
             transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0;
             animation: fadeInTime 1s 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            text-shadow: 0 18px 42px var(--shadow-color);
         }
 
         @keyframes fadeInTime {
@@ -100,6 +116,40 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lacan-title {
+            margin-bottom: 22px;
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeInTime 1s 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .rsi-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 34px;
+            width: min(520px, calc(100vw - 48px));
+            opacity: 0;
+            animation: fadeInTime 1s 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .rsi-term {
+            border-top: 1px solid var(--panel-border);
+            padding-top: 10px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-align: center;
+            text-transform: uppercase;
         }
 
         /* ========================================
@@ -110,7 +160,8 @@
             font-size: 22px;
             font-weight: 500;
             color: var(--text-secondary);
-            max-width: 600px;
+            width: min(600px, calc(100vw - 48px));
+            overflow-wrap: anywhere;
             line-height: 1.7;
             text-align: center;
             opacity: 0;
@@ -130,6 +181,28 @@
             font-size: 18px;
             color: var(--text-muted);
             font-weight: 400;
+            white-space: nowrap;
+        }
+
+        .quote-text {
+            display: block;
+            min-height: 1.7em;
+        }
+
+        .quote-text.typing::after {
+            content: "";
+            display: inline-block;
+            width: 0.08em;
+            height: 1em;
+            margin-left: 3px;
+            background: var(--accent);
+            vertical-align: -0.12em;
+            animation: caretBlink 1s steps(1, end) infinite;
+        }
+
+        @keyframes caretBlink {
+            0%, 45% { opacity: 1; }
+            46%, 100% { opacity: 0; }
         }
 
         /* ========================================
@@ -142,10 +215,10 @@
             width: 52px;
             height: 28px;
             border-radius: 14px;
-            background: rgba(120, 120, 130, 0.15);
+            background: var(--panel-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: none;
+            border: 1px solid transparent;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -154,7 +227,7 @@
         }
 
         .theme-toggle:hover {
-            background: rgba(120, 120, 130, 0.2);
+            border-color: var(--accent);
         }
 
         .theme-toggle:active {
@@ -165,12 +238,12 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            background: var(--accent);
             display: flex;
             justify-content: center;
             align-items: center;
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.25);
+            box-shadow: 0 2px 6px var(--shadow-color);
         }
 
         .toggle-icon {
@@ -202,13 +275,13 @@
             justify-content: center;
             align-items: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px var(--shadow-color);
             z-index: 1000;
         }
 
         .settings-btn:hover {
             transform: rotate(90deg) scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px var(--shadow-color);
         }
 
         .settings-btn:active {
@@ -231,12 +304,12 @@
             right: 32px;
             width: 280px;
             padding: 14px;
-            border-radius: 16px;
+            border-radius: 8px;
             background: var(--panel-bg);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
             border: 1px solid var(--panel-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 32px var(--shadow-color);
             opacity: 0;
             transform: translateY(20px) scale(0.95);
             pointer-events: none;
@@ -302,7 +375,7 @@
             border-radius: 50%;
             background: var(--slider-thumb);
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 1px 4px var(--shadow-color);
             transition: transform 0.2s ease;
         }
 
@@ -317,7 +390,7 @@
             background: var(--slider-thumb);
             cursor: pointer;
             border: none;
-            box-shadow: 0 1px 4px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 1px 4px var(--shadow-color);
         }
 
         /* Parallax Intensity Selector */
@@ -359,13 +432,23 @@
 
             .time {
                 font-size: 88px;
-                letter-spacing: -3px;
+                letter-spacing: 0;
             }
 
             .quote {
                 font-size: 15px;
                 padding: 0 32px;
                 margin-top: 28px;
+            }
+
+            .lacan-title {
+                margin-bottom: 16px;
+                font-size: 12px;
+            }
+
+            .rsi-strip {
+                gap: 8px;
+                margin-top: 24px;
             }
 
             .quote-author {
@@ -409,7 +492,7 @@
 
             .time {
                 font-size: 64px;
-                letter-spacing: -2px;
+                letter-spacing: 0;
             }
 
             .quote {
@@ -460,7 +543,7 @@
                 width: auto;
                 max-width: none;
                 padding: 12px;
-                border-radius: 14px;
+                border-radius: 8px;
             }
 
             .settings-title {
@@ -511,7 +594,7 @@
 
             .time {
                 font-size: 48px;
-                letter-spacing: -1px;
+                letter-spacing: 0;
             }
 
             .quote {
@@ -522,6 +605,11 @@
             .quote-author {
                 font-size: 11px;
                 margin-top: 6px;
+            }
+
+            .lacan-title,
+            .rsi-strip {
+                display: none;
             }
 
             .settings-panel {
@@ -596,7 +684,7 @@
         }
 
         /* ========================================
-           Audio Visualization Canvas - Siri Waves
+           Signifier Chain Canvas
            ======================================== */
         #waveformCanvas {
             position: fixed;
@@ -615,6 +703,47 @@
             opacity: 0;
             filter: blur(30px);
         }
+
+        .dictionary-chain-links {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25vh;
+            max-height: 200px;
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dictionary-chain-links.hidden {
+            opacity: 0;
+            filter: blur(30px);
+        }
+
+        .dictionary-chain-link {
+            position: absolute;
+            color: var(--text-secondary);
+            font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+            padding: 4px 6px;
+            border-radius: 4px;
+            text-decoration: none;
+            white-space: nowrap;
+            pointer-events: auto;
+            transform: translate(-50%, -50%);
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .dictionary-chain-link:hover,
+        .dictionary-chain-link:focus-visible {
+            color: var(--accent);
+            background: var(--panel-bg);
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -627,8 +756,9 @@
         </div>
     </button>
 
-    <!-- Siri Waveform Canvas -->
+    <!-- Signifier Chain Canvas -->
     <canvas id="waveformCanvas"></canvas>
+    <div class="dictionary-chain-links" id="dictionaryChainLinks" aria-label="觉心词典链接"></div>
 
     <!-- Settings Gear Button -->
     <button class="settings-btn" id="settingsBtn" aria-label="设置">
@@ -639,12 +769,12 @@
 
     <!-- Settings Panel -->
     <div class="settings-panel" id="settingsPanel">
-        <div class="settings-title">设置</div>
+        <div class="settings-title">分析设置</div>
 
         <!-- Clock Font Size -->
         <div class="setting-item">
             <div class="setting-label">
-                <span>时钟字体大小</span>
+                <span>时间字体大小</span>
                 <span class="setting-value" id="clockSizeValue">160px</span>
             </div>
             <input type="range" class="range-slider" id="clockSizeSlider"
@@ -654,7 +784,7 @@
         <!-- Quote Font Size -->
         <div class="setting-item">
             <div class="setting-label">
-                <span>名言字体大小</span>
+                <span>话语字体大小</span>
                 <span class="setting-value" id="quoteSizeValue">22px</span>
             </div>
             <input type="range" class="range-slider" id="quoteSizeSlider"
@@ -664,7 +794,7 @@
         <!-- Author Font Size -->
         <div class="setting-item">
             <div class="setting-label">
-                <span>作者字体大小</span>
+                <span>注释字体大小</span>
                 <span class="setting-value" id="authorSizeValue">18px</span>
             </div>
             <input type="range" class="range-slider" id="authorSizeSlider"
@@ -697,7 +827,7 @@
         <!-- Wave Toggle -->
         <div class="setting-item">
             <div class="setting-label">
-                <span>波浪效果</span>
+                <span>能指链</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="waveToggle" checked>
                     <span class="toggle-slider"></span>
@@ -757,8 +887,16 @@
 
     <!-- Parallax Wrapper -->
     <div class="parallax-wrapper">
+        <div class="lacan-title">LACANIAN CLOCK / le temps logique</div>
+
         <!-- Time Display -->
         <div class="time" id="timeDisplay">00:00:00</div>
+
+        <div class="rsi-strip" aria-label="拉康三界">
+            <div class="rsi-term">R / Real</div>
+            <div class="rsi-term">S / Symbolic</div>
+            <div class="rsi-term">I / Imaginary</div>
+        </div>
 
         <!-- Quote Display -->
         <div class="quote" id="quoteDisplay">
@@ -769,38 +907,28 @@
 
     <script>
         /**
-         * Apple Clock - Main Script
+         * Lacanian Clock - Main Script
          */
 
         const quotes = [
-            { text: "Stay hungry, stay foolish.", author: "Steve Jobs" },
-            { text: "简约是复杂的最终形式。", author: "Leonardo da Vinci" },
-            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-            { text: "活着就是为了改变世界。", author: "Steve Jobs" },
-            { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
-            { text: "Think different.", author: "Apple Inc." },
-            { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
-            { text: "成功不是终点，勇气才是终点。", author: "Ralph Waldo Emerson" },
-            { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
-            { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
-            { text: "人生短暂，及时行乐。", author: "Epicurus" },
-            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-            { text: "山高路远，看世界，也找自己。", author: "Unknown" },
-            { text: "做自己，因为别人都已经有人做了。", author: "Oscar Wilde" },
-            { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
-            { text: "种一棵树最好的时间是十年前，其次是现在。", author: "Chinese Proverb" },
-            { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
-            { text: "万物皆有裂痕，那是光照进来的地方。", author: "Leonard Cohen" },
-            { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
-            { text: "你的时间有限，不要为别人而活。", author: "Steve Jobs" },
-            { text: "Done is better than perfect.", author: "Sheryl Sandberg" },
-            { text: "追求卓越，成功自会随你而来。", author: "M. Scott Peck" },
-            { text: "Stay foolish, stay hungry.", author: "Steve Jobs" },
-            { text: "每一个不曾起舞的日子，都是对生命的辜负。", author: "Nietzsche" },
-            { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
-            { text: "不为模糊不清的未来担忧，只为清清楚楚的现在努力。", author: "Unknown" },
-            { text: "Creativity is intelligence having fun.", author: "Albert Einstein" },
-            { text: "我唯一知道的就是我一无所知。", author: "Socrates" }
+            { text: "欲望不是对物的索取，而是在他者的话语中寻找位置。", author: "desire / Other" },
+            { text: "主体在能指之间闪现，又在下一个能指处消失。", author: "signifier chain" },
+            { text: "镜像给出整体，裂隙却让主体开始说话。", author: "mirror stage" },
+            { text: "象征界安排时间，实在界打断时间。", author: "R / S" },
+            { text: "分析不是解释一切，而是听见重复如何组织现在。", author: "clinical time" },
+            { text: "无意识像语言一样被结构化。", author: "Lacan" },
+            { text: "爱，是把自己没有的东西给予并不需要它的人。", author: "Lacan" },
+            { text: "症状不是噪音，它有自己的文法。", author: "symptom" },
+            { text: "时间在切分中获得意义，沉默也是一次标点。", author: "scansion" },
+            { text: "我所说的，总比我想说的多一点，也少一点。", author: "enunciation" },
+            { text: "大他者并不保证意义，它只保存差异的轨道。", author: "big Other" },
+            { text: "欲望沿着缺失行走，因此时钟从不只是计量。", author: "lack" },
+            { text: "想象界安抚图像，象征界切分图像，实在界留下不可写。", author: "RSI" },
+            { text: "对象 a 不在中央；它让中央始终偏移。", author: "objet petit a" },
+            { text: "一次会谈的长度，不等于它的逻辑时间。", author: "logical time" },
+            { text: "重复并非回到过去，而是在现在制造同一个结。", author: "repetition" },
+            { text: "当话语停下，能指链并没有停止。", author: "session" },
+            { text: "主体不是钟表的主人，只是被时间书写的切口。", author: "split subject" }
         ];
 
         const timeDisplay = document.getElementById('timeDisplay');
@@ -811,9 +939,9 @@
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
 
-        let lastMinute = -1;
         let currentQuoteIndex = -1;
         let parallaxIntensity = 6;
+        let quoteCycleTimer = null;
 
         // Default settings
         const defaultSettings = {
@@ -846,10 +974,10 @@
 
             if (isMobile) {
                 // Reduce max clock size on mobile
-                if (parseInt(clockSlider.value) > 120) {
-                    clockSlider.value = 120;
+                if (parseInt(clockSlider.value) > 104) {
+                    clockSlider.value = 104;
                 }
-                clockSlider.max = 120;
+                clockSlider.max = 104;
             } else {
                 clockSlider.max = 200;
             }
@@ -859,11 +987,12 @@
         function applySettings(settings) {
             // Adjust slider ranges for mobile first
             adjustSliderRanges();
+            const effectiveClockSize = Math.min(settings.clockSize, parseInt(document.getElementById('clockSizeSlider').max));
 
             // Apply font sizes
-            timeDisplay.style.fontSize = settings.clockSize + 'px';
-            document.getElementById('clockSizeValue').textContent = settings.clockSize + 'px';
-            document.getElementById('clockSizeSlider').value = settings.clockSize;
+            timeDisplay.style.fontSize = effectiveClockSize + 'px';
+            document.getElementById('clockSizeValue').textContent = effectiveClockSize + 'px';
+            document.getElementById('clockSizeSlider').value = effectiveClockSize;
 
             document.querySelector('.quote').style.fontSize = settings.quoteSize + 'px';
             document.getElementById('quoteSizeValue').textContent = settings.quoteSize + 'px';
@@ -886,8 +1015,10 @@
             document.getElementById('waveToggle').checked = settings.waveEnabled;
             if (settings.waveEnabled) {
                 waveform.canvas.classList.remove('hidden');
+                waveform.linkLayer.classList.remove('hidden');
             } else {
                 waveform.canvas.classList.add('hidden');
+                waveform.linkLayer.classList.add('hidden');
             }
         }
 
@@ -908,12 +1039,6 @@
         function updateClock() {
             const now = new Date();
             timeDisplay.textContent = formatTime(now);
-
-            const currentMinute = now.getMinutes();
-            if (currentMinute !== lastMinute) {
-                lastMinute = currentMinute;
-                updateQuote();
-            }
         }
 
         function getRandomQuote() {
@@ -926,15 +1051,62 @@
             return quotes[newIndex];
         }
 
-        function updateQuote() {
-            quoteDisplay.classList.remove('visible');
+        function startQuoteLoop() {
+            clearTimeout(quoteCycleTimer);
+            quoteDisplay.classList.add('visible');
+            runQuoteCycle();
+        }
 
-            setTimeout(() => {
-                const quote = getRandomQuote();
-                quoteText.textContent = `"${quote.text}"`;
-                quoteAuthor.textContent = `— ${quote.author}`;
-                quoteDisplay.classList.add('visible');
-            }, 600);
+        function runQuoteCycle() {
+            const quote = getRandomQuote();
+            quoteAuthor.textContent = `— ${quote.author}`;
+            typeQuote(`"${quote.text}"`, () => {
+                quoteCycleTimer = setTimeout(() => {
+                    deleteQuote(() => {
+                        quoteCycleTimer = setTimeout(runQuoteCycle, 600);
+                    });
+                }, 2400);
+            });
+        }
+
+        function typeQuote(text, onComplete) {
+            let index = 0;
+            quoteText.textContent = '';
+            quoteText.classList.add('typing');
+
+            function typeNextCharacter() {
+                quoteText.textContent = text.slice(0, index);
+                index += 1;
+
+                if (index <= text.length) {
+                    quoteCycleTimer = setTimeout(typeNextCharacter, 86);
+                    return;
+                }
+
+                onComplete();
+            }
+
+            typeNextCharacter();
+        }
+
+        function deleteQuote(onComplete) {
+            let index = quoteText.textContent.length;
+            quoteText.classList.add('typing');
+
+            function deletePreviousCharacter() {
+                quoteText.textContent = quoteText.textContent.slice(0, index);
+                index -= 1;
+
+                if (index >= 0) {
+                    quoteCycleTimer = setTimeout(deletePreviousCharacter, 54);
+                    return;
+                }
+
+                quoteText.classList.remove('typing');
+                onComplete();
+            }
+
+            deletePreviousCharacter();
         }
 
         function toggleTheme() {
@@ -1059,17 +1231,207 @@
         animateParallax();
 
         // ========================================
-        // Siri Waveform Renderer - Pure Visual Effect
+        // Signifier Chain Renderer - Pure Visual Effect
         // ========================================
+        const dictionaryTerms = [
+            { term: '自我理想', href: 'https://juexin.mikansei.cn/zh/dictionary/ego-ideal' },
+            { term: '自我', href: 'https://juexin.mikansei.cn/zh/dictionary/ego' },
+            { term: '二元关系', href: 'https://juexin.mikansei.cn/zh/dictionary/dual-relation' },
+            { term: '驱力', href: 'https://juexin.mikansei.cn/zh/dictionary/drive' },
+            { term: '话语/宣诉话语', href: 'https://juexin.mikansei.cn/zh/dictionary/discourse' },
+            { term: '拒认', href: 'https://juexin.mikansei.cn/zh/dictionary/disavowal' },
+            { term: '辩证', href: 'https://juexin.mikansei.cn/zh/dictionary/dialectic' },
+            { term: '发展', href: 'https://juexin.mikansei.cn/zh/dictionary/development' },
+            { term: '分析家的欲望', href: 'https://juexin.mikansei.cn/zh/dictionary/desire-of-the-analyst' },
+            { term: '欲望', href: 'https://juexin.mikansei.cn/zh/dictionary/desire' },
+            { term: '要求', href: 'https://juexin.mikansei.cn/zh/dictionary/demand' },
+            { term: '错觉', href: 'https://juexin.mikansei.cn/zh/dictionary/delusion' },
+            { term: '防御', href: 'https://juexin.mikansei.cn/zh/dictionary/defence' },
+            { term: '死亡驱力', href: 'https://juexin.mikansei.cn/zh/dictionary/death-drive' },
+            { term: '死亡', href: 'https://juexin.mikansei.cn/zh/dictionary/death' },
+            { term: '反向移情', href: 'https://juexin.mikansei.cn/zh/dictionary/countertransference' },
+            { term: '分身', href: 'https://juexin.mikansei.cn/zh/dictionary/counterpart' },
+            { term: '意识', href: 'https://juexin.mikansei.cn/zh/dictionary/consciousness' },
+            { term: '情结', href: 'https://juexin.mikansei.cn/zh/dictionary/complex' },
+            { term: '沟通', href: 'https://juexin.mikansei.cn/zh/dictionary/communication' },
+            { term: '我思主体', href: 'https://juexin.mikansei.cn/zh/dictionary/cogito' },
+            { term: '符码', href: 'https://juexin.mikansei.cn/zh/dictionary/code' },
+            { term: '偶然', href: 'https://juexin.mikansei.cn/zh/dictionary/chance' },
+            { term: '原因', href: 'https://juexin.mikansei.cn/zh/dictionary/cause' },
+            { term: '阉割情结', href: 'https://juexin.mikansei.cn/zh/dictionary/castration-complex' },
+            { term: '诱捕', href: 'https://juexin.mikansei.cn/zh/dictionary/captation' },
+            { term: '波罗米结', href: 'https://juexin.mikansei.cn/zh/dictionary/borromean-knot' },
+            { term: '生物学', href: 'https://juexin.mikansei.cn/zh/dictionary/biology' },
+            { term: '认许', href: 'https://juexin.mikansei.cn/zh/dictionary/bejahung' },
+            { term: '存有', href: 'https://juexin.mikansei.cn/zh/dictionary/being' },
+            { term: '美丽灵魂', href: 'https://juexin.mikansei.cn/zh/dictionary/beautiful-soul' },
+            { term: '隔离线', href: 'https://juexin.mikansei.cn/zh/dictionary/bar' },
+            { term: '自律性自我', href: 'https://juexin.mikansei.cn/zh/dictionary/autonomous-ego' },
+            { term: '艺术', href: 'https://juexin.mikansei.cn/zh/dictionary/art' },
+            { term: '主体消隐', href: 'https://juexin.mikansei.cn/zh/dictionary/aphanisis' },
+            { term: '焦虑', href: 'https://juexin.mikansei.cn/zh/dictionary/anxiety' },
+            { term: '案主/精神分析案主', href: 'https://juexin.mikansei.cn/zh/dictionary/analysand-psychoanalysand' },
+            { term: '异化', href: 'https://juexin.mikansei.cn/zh/dictionary/alienation' },
+            { term: '代数', href: 'https://juexin.mikansei.cn/zh/dictionary/algebra' },
+            { term: '攻击性', href: 'https://juexin.mikansei.cn/zh/dictionary/aggressivity' },
+            { term: '情感', href: 'https://juexin.mikansei.cn/zh/dictionary/affect' },
+            { term: '适应', href: 'https://juexin.mikansei.cn/zh/dictionary/adaptation' },
+            { term: '动作搬演', href: 'https://juexin.mikansei.cn/zh/dictionary/acting-out' },
+            { term: '行动', href: 'https://juexin.mikansei.cn/zh/dictionary/act' },
+            { term: '不在场', href: 'https://juexin.mikansei.cn/zh/dictionary/absence' },
+            { term: '重复', href: 'https://juexin.mikansei.cn/zh/dictionary/repetition' },
+            { term: '认同', href: 'https://juexin.mikansei.cn/zh/dictionary/identification' },
+            { term: '知识', href: 'https://juexin.mikansei.cn/zh/dictionary/knowledge' },
+            { term: '黏扣点', href: 'https://juexin.mikansei.cn/zh/dictionary/point-de-capiton' },
+            { term: '需要', href: 'https://juexin.mikansei.cn/zh/dictionary/need' },
+            { term: '阻却/挫折', href: 'https://juexin.mikansei.cn/zh/dictionary/frustration' },
+            { term: '镜像', href: 'https://juexin.mikansei.cn/zh/dictionary/specular-image' },
+            { term: '退行', href: 'https://juexin.mikansei.cn/zh/dictionary/regression' },
+            { term: '进步', href: 'https://juexin.mikansei.cn/zh/dictionary/progress' },
+            { term: '转换词', href: 'https://juexin.mikansei.cn/zh/dictionary/shifter' },
+            { term: '超我', href: 'https://juexin.mikansei.cn/zh/dictionary/superego' },
+            { term: '貌似物', href: 'https://juexin.mikansei.cn/zh/dictionary/semblance' },
+            { term: '说话/言说/言词', href: 'https://juexin.mikansei.cn/zh/dictionary/speech' },
+            { term: '诱饵/务惑', href: 'https://juexin.mikansei.cn/zh/dictionary/lure' },
+            { term: '误鹊', href: 'https://juexin.mikansei.cn/zh/dictionary/m-connaissance' },
+            { term: '语言学', href: 'https://juexin.mikansei.cn/zh/dictionary/linguistics' },
+            { term: '语言', href: 'https://juexin.mikansei.cn/zh/dictionary/language' },
+            { term: '诠释', href: 'https://juexin.mikansei.cn/zh/dictionary/interpretation' },
+            { term: '讲座', href: 'https://juexin.mikansei.cn/zh/dictionary/seminar' },
+            { term: '记忆', href: 'https://juexin.mikansei.cn/zh/dictionary/memory' },
+            { term: '记号', href: 'https://juexin.mikansei.cn/zh/dictionary/sign' },
+            { term: '训练', href: 'https://juexin.mikansei.cn/zh/dictionary/training' },
+            { term: '认证', href: 'https://juexin.mikansei.cn/zh/dictionary/pass' },
+            { term: '视线', href: 'https://juexin.mikansei.cn/zh/dictionary/gaze' },
+            { term: '被假定知道的主体', href: 'https://juexin.mikansei.cn/zh/dictionary/subject-supposed-to-know' },
+            { term: '表记', href: 'https://juexin.mikansei.cn/zh/dictionary/signifier' },
+            { term: '表义过程', href: 'https://juexin.mikansei.cn/zh/dictionary/signification' },
+            { term: '衍称/接转/转瞒', href: 'https://juexin.mikansei.cn/zh/dictionary/metonymy' },
+            { term: '自然', href: 'https://juexin.mikansei.cn/zh/dictionary/nature' },
+            { term: '自我心理学', href: 'https://juexin.mikansei.cn/zh/dictionary/ego-psychology' },
+            { term: '自恋', href: 'https://juexin.mikansei.cn/zh/dictionary/narcissism' },
+            { term: '缺口', href: 'https://juexin.mikansei.cn/zh/dictionary/gap' },
+            { term: '结构', href: 'https://juexin.mikansei.cn/zh/dictionary/structure' },
+            { term: '精神病', href: 'https://juexin.mikansei.cn/zh/dictionary/psychosis' },
+            { term: '精神官能症', href: 'https://juexin.mikansei.cn/zh/dictionary/neurosis' },
+            { term: '精神分析', href: 'https://juexin.mikansei.cn/zh/dictionary/psychoanalysis' },
+            { term: '科学', href: 'https://juexin.mikansei.cn/zh/dictionary/science' },
+            { term: '离密性', href: 'https://juexin.mikansei.cn/zh/dictionary/extimacy' },
+            { term: '碎裂身体', href: 'https://juexin.mikansei.cn/zh/dictionary/fragmented-body' },
+            { term: '享乐', href: 'https://juexin.mikansei.cn/zh/dictionary/jouissance' },
+            { term: '症状', href: 'https://juexin.mikansei.cn/zh/dictionary/symptom' },
+            { term: '现实原则', href: 'https://juexin.mikansei.cn/zh/dictionary/reality-principle' },
+            { term: '环圈体', href: 'https://juexin.mikansei.cn/zh/dictionary/torus' },
+            { term: '父格代称', href: 'https://juexin.mikansei.cn/zh/dictionary/paternal-metaphor' },
+            { term: '父亲', href: 'https://juexin.mikansei.cn/zh/dictionary/father' },
+            { term: '父之名', href: 'https://juexin.mikansei.cn/zh/dictionary/name-of-the-father' },
+            { term: '爱', href: 'https://juexin.mikansei.cn/zh/dictionary/love' },
+            { term: '治疗', href: 'https://juexin.mikansei.cn/zh/dictionary/treatment' },
+            { term: '母亲', href: 'https://juexin.mikansei.cn/zh/dictionary/mother' },
+            { term: '歇斯底里', href: 'https://juexin.mikansei.cn/zh/dictionary/hysteria' },
+            { term: '欲望图解', href: 'https://juexin.mikansei.cn/zh/dictionary/graph-of-desire' },
+            { term: '欠缺', href: 'https://juexin.mikansei.cn/zh/dictionary/lack' },
+            { term: '莫比乌斯带', href: 'https://juexin.mikansei.cn/zh/dictionary/moebius-strip' },
+            { term: '症核', href: 'https://juexin.mikansei.cn/zh/dictionary/sinthome' },
+            { term: '本能', href: 'https://juexin.mikansei.cn/zh/dictionary/instinct' },
+            { term: '暗示', href: 'https://juexin.mikansei.cn/zh/dictionary/suggestion' },
+            { term: '时间', href: 'https://juexin.mikansei.cn/zh/dictionary/time' },
+            { term: '无助', href: 'https://juexin.mikansei.cn/zh/dictionary/helplessness' },
+            { term: '施虐狂/受虐狂', href: 'https://juexin.mikansei.cn/zh/dictionary/sadism-masochism' },
+            { term: '断句', href: 'https://juexin.mikansei.cn/zh/dictionary/punctuation' },
+            { term: '数学', href: 'https://juexin.mikansei.cn/zh/dictionary/mathematics' },
+            { term: '拓扑学', href: 'https://juexin.mikansei.cn/zh/dictionary/topology' },
+            { term: '抗拒', href: 'https://juexin.mikansei.cn/zh/dictionary/resistance' },
+            { term: '指示符号', href: 'https://juexin.mikansei.cn/zh/dictionary/index' },
+            { term: '投射', href: 'https://juexin.mikansei.cn/zh/dictionary/projection' },
+            { term: '付诸行动', href: 'https://juexin.mikansei.cn/zh/dictionary/passage-to-the-act' },
+            { term: '所指', href: 'https://juexin.mikansei.cn/zh/dictionary/signified' },
+            { term: '恐惧症', href: 'https://juexin.mikansei.cn/zh/dictionary/phobia' },
+            { term: '恋物癖', href: 'https://juexin.mikansei.cn/zh/dictionary/fetishism' },
+            { term: '性器', href: 'https://juexin.mikansei.cn/zh/dictionary/genital' },
+            { term: '心理学', href: 'https://juexin.mikansei.cn/zh/dictionary/psychology' },
+            { term: '心像', href: 'https://juexin.mikansei.cn/zh/dictionary/imago' },
+            { term: '形成物', href: 'https://juexin.mikansei.cn/zh/dictionary/formation' },
+            { term: '奠基性言说', href: 'https://juexin.mikansei.cn/zh/dictionary/founding-speech' },
+            { term: '幻觉', href: 'https://juexin.mikansei.cn/zh/dictionary/hallucination' },
+            { term: '界域', href: 'https://juexin.mikansei.cn/zh/dictionary/order' },
+            { term: '宗教', href: 'https://juexin.mikansei.cn/zh/dictionary/religion' },
+            { term: '完形', href: 'https://juexin.mikansei.cn/zh/dictionary/gestalt' },
+            { term: '它/本我', href: 'https://juexin.mikansei.cn/zh/dictionary/id' },
+            { term: '学派', href: 'https://juexin.mikansei.cn/zh/dictionary/school' },
+            { term: '存在', href: 'https://juexin.mikansei.cn/zh/dictionary/existence' },
+            { term: '偏执狂', href: 'https://juexin.mikansei.cn/zh/dictionary/paranoia' },
+            { term: '国际精神分析协会', href: 'https://juexin.mikansei.cn/zh/dictionary/international-psychoanalytical-association' },
+            { term: '回忆', href: 'https://juexin.mikansei.cn/zh/dictionary/recollection' },
+            { term: '四元结构', href: 'https://juexin.mikansei.cn/zh/dictionary/quaternary' },
+            { term: '唯物论', href: 'https://juexin.mikansei.cn/zh/dictionary/materialism' },
+            { term: '哲学', href: 'https://juexin.mikansei.cn/zh/dictionary/philosophy' },
+            { term: '后设语言', href: 'https://juexin.mikansei.cn/zh/dictionary/metalanguage' },
+            { term: '言说行动', href: 'https://juexin.mikansei.cn/zh/dictionary/enunciation' },
+            { term: '分裂', href: 'https://juexin.mikansei.cn/zh/dictionary/split' },
+            { term: '原物', href: 'https://juexin.mikansei.cn/zh/dictionary/thing' },
+            { term: '升华', href: 'https://juexin.mikansei.cn/zh/dictionary/sublimation' },
+            { term: '剥夺', href: 'https://juexin.mikansei.cn/zh/dictionary/privation' },
+            { term: '内摄', href: 'https://juexin.mikansei.cn/zh/dictionary/introjection' },
+            { term: '克莱恩精神分析学派', href: 'https://juexin.mikansei.cn/zh/dictionary/kleinian-psychoanalysis' },
+            { term: '光学装置', href: 'https://juexin.mikansei.cn/zh/dictionary/optical-model' },
+            { term: '倒转', href: 'https://juexin.mikansei.cn/zh/dictionary/inversion' },
+            { term: '回归弗洛伊德', href: 'https://juexin.mikansei.cn/zh/dictionary/freud-return-to' },
+            { term: '传递作用', href: 'https://juexin.mikansei.cn/zh/dictionary/transitivism' },
+            { term: '字母', href: 'https://juexin.mikansei.cn/zh/dictionary/letter' },
+            { term: '基式', href: 'https://juexin.mikansei.cn/zh/dictionary/matheme' },
+            { term: '局部对象', href: 'https://juexin.mikansei.cn/zh/dictionary/part-object' },
+            { term: '快感原则', href: 'https://juexin.mikansei.cn/zh/dictionary/pleasure-principle' },
+            { term: '律法', href: 'https://juexin.mikansei.cn/zh/dictionary/law' },
+            { term: '性别差异', href: 'https://juexin.mikansei.cn/zh/dictionary/sexual-difference' },
+            { term: '滑动', href: 'https://juexin.mikansei.cn/zh/dictionary/slip' },
+            { term: '否定', href: 'https://juexin.mikansei.cn/zh/dictionary/negation' },
+            { term: '疯狂', href: 'https://juexin.mikansei.cn/zh/dictionary/madness' },
+            { term: '真理/真相', href: 'https://juexin.mikansei.cn/zh/dictionary/truth' },
+            { term: '性/别关系', href: 'https://juexin.mikansei.cn/zh/dictionary/sexual-relationship' },
+            { term: 'C 因子', href: 'https://juexin.mikansei.cn/zh/dictionary/factor-c' },
+            { term: '强迫型神经症', href: 'https://juexin.mikansei.cn/zh/dictionary/obsessional-neurosis' },
+            { term: '女人', href: 'https://juexin.mikansei.cn/zh/dictionary/woman' },
+            { term: '变态', href: 'https://juexin.mikansei.cn/zh/dictionary/perversion' },
+            { term: '分析结束', href: 'https://juexin.mikansei.cn/zh/dictionary/end-of-analysis' },
+            { term: '伦理', href: 'https://juexin.mikansei.cn/zh/dictionary/ethics' },
+            { term: '对象关系理论', href: 'https://juexin.mikansei.cn/zh/dictionary/object-relations-theory' },
+            { term: '力比多', href: 'https://juexin.mikansei.cn/zh/dictionary/libido' },
+            { term: '前俄狄浦斯期', href: 'https://juexin.mikansei.cn/zh/dictionary/preoedipal-phase' },
+            { term: '压抑', href: 'https://juexin.mikansei.cn/zh/dictionary/repression' },
+            { term: '主体间性', href: 'https://juexin.mikansei.cn/zh/dictionary/intersubjectivity' },
+            { term: '主人', href: 'https://juexin.mikansei.cn/zh/dictionary/master' },
+            { term: '镜像期', href: 'https://juexin.mikansei.cn/zh/dictionary/mirror-stage' },
+            { term: '小他者/大他者', href: 'https://juexin.mikansei.cn/zh/dictionary/other-other' },
+            { term: '隐喻', href: 'https://juexin.mikansei.cn/zh/dictionary/metaphor' },
+            { term: '俄狄浦斯情结', href: 'https://juexin.mikansei.cn/zh/dictionary/oedipus-complex' },
+            { term: 'L 图式', href: 'https://juexin.mikansei.cn/zh/dictionary/schema-l' },
+            { term: '无意识', href: 'https://juexin.mikansei.cn/zh/dictionary/unconscious' },
+            { term: '真实界', href: 'https://juexin.mikansei.cn/zh/dictionary/real' },
+            { term: '阳具', href: 'https://juexin.mikansei.cn/zh/dictionary/phallus' },
+            { term: '幻想', href: 'https://juexin.mikansei.cn/zh/dictionary/fantasy' },
+            { term: '想象界', href: 'https://juexin.mikansei.cn/zh/dictionary/imaginary' },
+            { term: '主体', href: 'https://juexin.mikansei.cn/zh/dictionary/subject' },
+            { term: '能指链', href: 'https://juexin.mikansei.cn/zh/dictionary/signifying-chain' },
+            { term: '弃绝', href: 'https://juexin.mikansei.cn/zh/dictionary/foreclosure' },
+            { term: '象征界', href: 'https://juexin.mikansei.cn/zh/dictionary/symbolic' },
+            { term: '移情', href: 'https://juexin.mikansei.cn/zh/dictionary/transference' },
+            { term: '对象a', href: 'https://juexin.mikansei.cn/zh/dictionary/objet-a' },
+        ];
+
         class WaveformRenderer {
             constructor(canvasId) {
                 this.canvas = document.getElementById(canvasId);
                 this.ctx = this.canvas.getContext('2d');
+                this.linkLayer = document.getElementById('dictionaryChainLinks');
 
-                // Wave configuration - 5 overlapping waves
-                this.waveCount = 5;
+                // Chain configuration - 3 overlapping dictionary paths
+                this.waveCount = 3;
                 this.waves = [];
+                this.linkNodes = [];
+                this.visibleLinkCursor = 0;
                 this.initWaves();
+                this.initLinks();
 
                 // Canvas dimensions
                 this.width = 0;
@@ -1080,14 +1442,26 @@
                 this.resize();
             }
 
+            initLinks() {
+                this.linkLayer.textContent = '';
+
+                for (let index = 0; index < 24; index++) {
+                    const link = document.createElement('a');
+                    link.className = 'dictionary-chain-link';
+                    link.dataset.index = String(index);
+                    this.linkLayer.appendChild(link);
+                    this.linkNodes.push(link);
+                }
+            }
+
             initWaves() {
                 for (let i = 0; i < this.waveCount; i++) {
                     this.waves.push({
-                        amplitude: 20 + Math.random() * 25,
-                        frequency: 0.003 + Math.random() * 0.004,
+                        amplitude: 12 + Math.random() * 18,
+                        frequency: 0.002 + Math.random() * 0.003,
                         phase: Math.random() * Math.PI * 2,
-                        speed: 0.003 + Math.random() * 0.005,
-                        baseY: 0.35 + (i * 0.08)
+                        speed: 0.002 + Math.random() * 0.004,
+                        baseY: 0.32 + (i * 0.14)
                     });
                 }
             }
@@ -1102,7 +1476,9 @@
                 this.ctx.scale(dpr, dpr);
 
                 this.canvas.style.height = this.height + 'px';
+                this.linkLayer.style.height = this.height + 'px';
                 this.canvas.classList.remove('hidden');
+                this.linkLayer.classList.remove('hidden');
             }
 
             drawWaveLine(wave, time) {
@@ -1126,29 +1502,52 @@
                 // Create gradient for the line
                 const gradient = ctx.createLinearGradient(0, 0, this.width, 0);
 
-                // Base opacity varies by wave index (outer waves are more subtle)
-                const waveOpacity = 0.25 - (this.waves.indexOf(wave) * 0.03);
+                // Base opacity varies by chain index (outer chains are more subtle)
+                const waveOpacity = 0.28 - (this.waves.indexOf(wave) * 0.06);
 
                 if (isDark) {
-                    // Dark mode: white waves
-                    gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-                    gradient.addColorStop(0.1, `rgba(255, 255, 255, ${waveOpacity * 0.3})`);
-                    gradient.addColorStop(0.5, `rgba(255, 255, 255, ${waveOpacity})`);
-                    gradient.addColorStop(0.9, `rgba(255, 255, 255, ${waveOpacity * 0.3})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                    gradient.addColorStop(0, `rgba(243, 232, 208, 0)`);
+                    gradient.addColorStop(0.1, `rgba(243, 232, 208, ${waveOpacity * 0.3})`);
+                    gradient.addColorStop(0.5, `rgba(193, 100, 79, ${waveOpacity})`);
+                    gradient.addColorStop(0.9, `rgba(243, 232, 208, ${waveOpacity * 0.3})`);
+                    gradient.addColorStop(1, `rgba(243, 232, 208, 0)`);
                 } else {
-                    // Light mode: black waves
-                    gradient.addColorStop(0, `rgba(0, 0, 0, 0)`);
-                    gradient.addColorStop(0.1, `rgba(0, 0, 0, ${waveOpacity * 0.15})`);
-                    gradient.addColorStop(0.5, `rgba(0, 0, 0, ${waveOpacity * 0.4})`);
-                    gradient.addColorStop(0.9, `rgba(0, 0, 0, ${waveOpacity * 0.15})`);
-                    gradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                    gradient.addColorStop(0, `rgba(27, 23, 19, 0)`);
+                    gradient.addColorStop(0.1, `rgba(27, 23, 19, ${waveOpacity * 0.18})`);
+                    gradient.addColorStop(0.5, `rgba(158, 63, 49, ${waveOpacity * 0.85})`);
+                    gradient.addColorStop(0.9, `rgba(27, 23, 19, ${waveOpacity * 0.18})`);
+                    gradient.addColorStop(1, `rgba(27, 23, 19, 0)`);
                 }
 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 2.5;
+                ctx.lineWidth = 1.5;
                 ctx.lineCap = 'round';
                 ctx.stroke();
+            }
+
+            positionLinks(wave, time) {
+                const waveIndex = this.waves.indexOf(wave);
+                const centerY = this.height * wave.baseY;
+                const spacing = 152 + waveIndex * 34;
+                const drift = (time * 15 * (waveIndex + 1)) % spacing;
+
+                for (let x = -spacing; x <= this.width + spacing; x += spacing) {
+                    const drawX = x + drift;
+                    const y = centerY +
+                        Math.sin(drawX * wave.frequency + wave.phase + time * wave.speed * 100) * wave.amplitude;
+                    const link = this.linkNodes[this.visibleLinkCursor % this.linkNodes.length];
+                    const rotationBatch = Math.floor(time / 5);
+                    const termIndex = Math.abs(Math.floor((x / spacing) + waveIndex * 13 + rotationBatch * 17)) % dictionaryTerms.length;
+                    const item = dictionaryTerms[termIndex];
+
+                    link.href = item.href;
+                    link.textContent = item.term;
+                    link.title = `打开觉心词典：${item.term}`;
+                    link.style.left = `${drawX}px`;
+                    link.style.top = `${y - 15}px`;
+                    link.style.opacity = drawX > -80 && drawX < this.width + 80 ? '1' : '0';
+                    this.visibleLinkCursor += 1;
+                }
             }
 
             render() {
@@ -1156,10 +1555,15 @@
 
                 // Clear canvas
                 this.ctx.clearRect(0, 0, this.width, this.height);
+                this.visibleLinkCursor = 0;
+                this.linkNodes.forEach(link => {
+                    link.style.opacity = '0';
+                });
 
                 // Draw all waves
                 for (const wave of this.waves) {
                     this.drawWaveLine(wave, time);
+                    this.positionLinks(wave, time);
                 }
 
                 requestAnimationFrame(() => this.render());
@@ -1179,9 +1583,11 @@
         function smoothThemeTransition() {
             // Briefly hide to reset gradients
             waveform.canvas.classList.add('hidden');
+            waveform.linkLayer.classList.add('hidden');
             clearTimeout(themeTransitionTimeout);
             themeTransitionTimeout = setTimeout(() => {
                 waveform.canvas.classList.remove('hidden');
+                waveform.linkLayer.classList.remove('hidden');
             }, 300);
         }
 
@@ -1200,8 +1606,8 @@
         initTheme();
         const settings = loadSettings();
         applySettings(settings);
-        updateQuote();
         updateClock();
+        startQuoteLoop();
         setInterval(updateClock, 1000);
     </script>
 </body>
